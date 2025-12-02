@@ -36,11 +36,11 @@ const IconUser = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height
 const IconPlay = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>;
 
 // AVATARES E INSÍGNIAS
-const avatars = ['🤖', '👾', '🧑‍💻', '👩‍🚀', '🐱‍👓', '🦝'];
+const avatars = ['🤖', '👾', '🧑‍💻', '👩‍🚀', '🐱', '🦝'];
 const badgeTiers = {
   iniciante: { name: 'Iniciante', points: 0, icon: '🥉' },
-  veterano: { name: 'Veterano', points: 2001, icon: '🥈' },
-  senior: { name: 'Sênior', points: 4501, icon: '🥇' },
+  veterano: { name: 'Veterano', points: 1000, icon: '🥈' },
+  senior: { name: 'Sênior', points: 1900, icon: '🥇' },
 };
 
 // COMPONENTES DA APLICAÇÃO
@@ -148,7 +148,7 @@ function TrackSelection({ onSelectTrack, onBack }) {
           </div>
         ))}
       </div>
-       <button onClick={onBack} className="mt-12 py-2 px-6 bg-gray-700 rounded-lg font-bold text-white hover:bg-gray-600 transition-colors">
+      <button onClick={onBack} className="mt-12 py-2 px-6 bg-gray-700 rounded-lg font-bold text-white hover:bg-gray-600 transition-colors">
         Voltar ao Menu
       </button>
     </div>
@@ -204,7 +204,7 @@ function QuizScreen({ track, onQuizComplete }) {
       const timeBonus = timeLeft * 10;
       setScore(prev => prev + (basePoints * difficultyMultiplier) + timeBonus);
     }
-    
+
     setTimeout(() => {
       if (currentQuestionIndex < questions.length - 1) {
         setCurrentQuestionIndex(prev => prev + 1);
@@ -273,12 +273,13 @@ function QuizScreen({ track, onQuizComplete }) {
 
 // Componente de Resultados
 function ResultsScreen({ score, track, onNavigate }) {
+  console.log('ResultsScreen Debug:', { score, badgeTiers });
   const getBadge = (finalScore) => {
     if (finalScore >= badgeTiers.senior.points) return badgeTiers.senior;
     if (finalScore >= badgeTiers.veterano.points) return badgeTiers.veterano;
     return badgeTiers.iniciante;
   };
-  
+
   const badge = getBadge(score);
 
   return (
@@ -307,78 +308,79 @@ function ResultsScreen({ score, track, onNavigate }) {
 
 // Componente de Perfil
 function ProfileScreen({ user, onUpdateAvatar, onBack }) {
-    const [selectedAvatar, setSelectedAvatar] = useState(user.avatar);
+  console.log('ProfileScreen Debug:', { badges: user.badges, badgeTiers });
+  const [selectedAvatar, setSelectedAvatar] = useState(user.avatar);
 
-    const handleAvatarChange = (avatar) => {
-        setSelectedAvatar(avatar);
-        onUpdateAvatar(avatar);
-    };
+  const handleAvatarChange = (avatar) => {
+    setSelectedAvatar(avatar);
+    onUpdateAvatar(avatar);
+  };
 
-    const getBadgeForTrack = (track) => {
-        const badgeInfo = user.badges[track];
-        if (!badgeInfo) {
-            return { name: 'Não Conquistada', icon: '❓', tier: 'none' };
-        }
-        if (badgeInfo.score >= badgeTiers.senior.points) return { ...badgeTiers.senior, tier: 'senior' };
-        if (badgeInfo.score >= badgeTiers.veterano.points) return { ...badgeTiers.veterano, tier: 'veterano' };
-        return { ...badgeTiers.iniciante, tier: 'iniciante' };
-    };
-    
-    const badgeColors = {
-        iniciante: 'border-amber-700',
-        veterano: 'border-slate-400',
-        senior: 'border-yellow-400',
-        none: 'border-gray-600',
-    };
+  const getBadgeForTrack = (track) => {
+    const badgeInfo = user.badges[track];
+    if (!badgeInfo) {
+      return { name: 'Não Conquistada', icon: '❓', tier: 'none' };
+    }
+    if (badgeInfo.score >= badgeTiers.senior.points) return { ...badgeTiers.senior, tier: 'senior' };
+    if (badgeInfo.score >= badgeTiers.veterano.points) return { ...badgeTiers.veterano, tier: 'veterano' };
+    return { ...badgeTiers.iniciante, tier: 'iniciante' };
+  };
 
-    return (
-        <div className="flex flex-col items-center min-h-screen bg-gray-900 text-white p-4 pt-12">
-            <div className="w-full max-w-4xl">
-                <div className="bg-gray-800 p-8 rounded-lg shadow-lg text-center border border-gray-700 mb-8">
-                    <div className="text-8xl mb-4">{selectedAvatar}</div>
-                    <h1 className="text-4xl font-bold text-teal-400">{user.nickname}</h1>
-                    <p className="text-gray-400">{user.email}</p>
-                    
-                    <div className="mt-6">
-                        <h3 className="text-lg font-semibold mb-3">Escolha seu Avatar:</h3>
-                        <div className="flex justify-center gap-4">
-                            {avatars.map(avatar => (
-                                <button
-                                    key={avatar}
-                                    onClick={() => handleAvatarChange(avatar)}
-                                    className={`text-4xl p-2 rounded-full transition-transform transform hover:scale-125 ${selectedAvatar === avatar ? 'bg-teal-500/30' : ''}`}
-                                >
-                                    {avatar}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                </div>
+  const badgeColors = {
+    iniciante: 'border-amber-700',
+    veterano: 'border-slate-400',
+    senior: 'border-yellow-400',
+    none: 'border-gray-600',
+  };
 
-                <div className="bg-gray-800 p-8 rounded-lg shadow-lg border border-gray-700">
-                    <h2 className="text-3xl font-bold text-center mb-6">Galeria de Insígnias</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {['frontend', 'backend', 'dados'].map(track => {
-                            const badge = getBadgeForTrack(track);
-                            return (
-                                <div key={track} className={`bg-gray-700 p-6 rounded-lg text-center border-2 ${badgeColors[badge.tier]}`}>
-                                    <h3 className="text-xl font-bold capitalize mb-2">{track}</h3>
-                                    <p className="text-6xl mb-2">{badge.icon}</p>
-                                    <p className={`text-xl font-semibold ${badge.tier !== 'none' ? 'text-teal-400' : 'text-gray-400'}`}>{badge.name}</p>
-                                </div>
-                            );
-                        })}
-                    </div>
-                </div>
-                
-                <div className="text-center mt-8">
-                    <button onClick={onBack} className="py-3 px-8 bg-gray-700 rounded-lg font-bold text-white hover:bg-gray-600 transition-colors">
-                        Voltar ao Menu
-                    </button>
-                </div>
+  return (
+    <div className="flex flex-col items-center min-h-screen bg-gray-900 text-white p-4 pt-12">
+      <div className="w-full max-w-4xl">
+        <div className="bg-gray-800 p-8 rounded-lg shadow-lg text-center border border-gray-700 mb-8">
+          <div className="text-8xl mb-4">{selectedAvatar}</div>
+          <h1 className="text-4xl font-bold text-teal-400">{user.nickname}</h1>
+          <p className="text-gray-400">{user.email}</p>
+
+          <div className="mt-6">
+            <h3 className="text-lg font-semibold mb-3">Escolha seu Avatar:</h3>
+            <div className="flex justify-center gap-4">
+              {avatars.map(avatar => (
+                <button
+                  key={avatar}
+                  onClick={() => handleAvatarChange(avatar)}
+                  className={`text-4xl p-2 rounded-full transition-transform transform hover:scale-125 ${selectedAvatar === avatar ? 'bg-teal-500/30' : ''}`}
+                >
+                  {avatar}
+                </button>
+              ))}
             </div>
+          </div>
         </div>
-    );
+
+        <div className="bg-gray-800 p-8 rounded-lg shadow-lg border border-gray-700">
+          <h2 className="text-3xl font-bold text-center mb-6">Galeria de Insígnias</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {['frontend', 'backend', 'dados'].map(track => {
+              const badge = getBadgeForTrack(track);
+              return (
+                <div key={track} className={`bg-gray-700 p-6 rounded-lg text-center border-2 ${badgeColors[badge.tier]}`}>
+                  <h3 className="text-xl font-bold capitalize mb-2">{track}</h3>
+                  <p className="text-6xl mb-2">{badge.icon}</p>
+                  <p className={`text-xl font-semibold ${badge.tier !== 'none' ? 'text-teal-400' : 'text-gray-400'}`}>{badge.name}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="text-center mt-8">
+          <button onClick={onBack} className="py-3 px-8 bg-gray-700 rounded-lg font-bold text-white hover:bg-gray-600 transition-colors">
+            Voltar ao Menu
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 
@@ -414,7 +416,7 @@ export default function App() {
       alert("E-mail ou senha inválidos!");
     }
   };
-  
+
   const handleSelectTrack = (track) => {
     setQuizConfig({ ...quizConfig, track });
     setPage('quiz');
@@ -422,18 +424,18 @@ export default function App() {
 
   const handleQuizComplete = (score) => {
     setQuizConfig({ ...quizConfig, finalScore: score });
-    
+
     // Atualiza a melhor insígnia do usuário
     const currentUser = { ...user };
     const currentBest = currentUser.badges[quizConfig.track]?.score || 0;
     if (score > currentBest) {
       currentUser.badges[quizConfig.track] = { score };
       setUser(currentUser);
-      
+
       // Atualiza no "banco de dados"
       setUsers(users.map(u => u.id === currentUser.id ? currentUser : u));
     }
-    
+
     setPage('results');
   };
 
@@ -442,7 +444,7 @@ export default function App() {
     setUser(updatedUser);
     setUsers(users.map(u => u.id === updatedUser.id ? updatedUser : u));
   };
-  
+
   const renderPage = () => {
     switch (page) {
       case 'auth':
